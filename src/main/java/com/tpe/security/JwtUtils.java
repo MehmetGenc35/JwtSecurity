@@ -2,7 +2,6 @@ package com.tpe.security;
 
 import com.tpe.security.service.UserDetailsImpl;
 import io.jsonwebtoken.*;
-import org.springframework.scheduling.support.SimpleTriggerContext;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Component;
 
@@ -14,10 +13,10 @@ public class JwtUtils {
     //Token oluşturmak için iki bilgiye ihtiyacımız var Secret Key ve Expression(süre)
     private String jwtSecret="sboot";//secret key
 
-    private long jwtExpirationMs =8640000; //24*60*60*1000
+    private long jwtExpirationMs =86400000; //24*60*60*1000
 
 //GENERATE JWT TOKEN ****************
-    public String generateToke(Authentication authentication){
+    public String generateToken(Authentication authentication){
         //Token üretebilmek için kullanıcıya ulaşmamız lazım
         //Kullanıcıya ulaşabilmek için Authentication objesini parametre olarak vermemiz lazım
 
@@ -31,10 +30,11 @@ public class JwtUtils {
                 setSubject(userDetails.getUsername()).
                 //Ne zaman creat edilmiş
                 setIssuedAt(new Date()).
+                //1970 unix işletim sistemi tarafından başlangıç zamanı olarak kabul edilen bir referans noktasıdır.
                 //Kullanım süresi //1970 yılına git günümğze gel üzerine bizim belirlediğimiz ex ekle
                 setExpiration(new Date(new Date().getTime()+jwtExpirationMs)).
                 //Hangi hasleme algoritması kullanılacak// algoritma olarak da benim verdiğim secret key kullan demiş olduk
-                signWith(SignatureAlgorithm.ES512,jwtSecret).compact();
+                signWith(SignatureAlgorithm.HS512,jwtSecret).compact();
 
     }
 

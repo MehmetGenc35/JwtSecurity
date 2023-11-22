@@ -6,6 +6,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.util.AntPathMatcher;
 import org.springframework.util.StringUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
 
@@ -36,12 +37,12 @@ public class AuthTokenFilter extends OncePerRequestFilter {
                 //Kullanıcı valide edildi ama kullanıcıya gönderilmeden contexte gitmesi lazım
                 //Jwt içinden username bilgisini çekiyorum
 
-                String userNAme= jwtUtils.getUserNameFromJwtToken(jwtToken);
+                String userName= jwtUtils.getUserNameFromJwtToken(jwtToken);
                 //Artık elimizde userName var. Userın ismini getirmemiz lazım
                 //User name bilgisi ile userDetail nesnemi getiriyorum
                 //UserDetailService DI yapılması lazım
 
-                UserDetails userDetails= userDetailsService.loadUserByUsername(userNAme);
+                UserDetails userDetails= userDetailsService.loadUserByUsername(userName);
                 //Artık elimizde userın userdetail i var.
                 //Bunu security contexte göndermemiz lazım
                 //Direk yollayamadığımız için
@@ -71,6 +72,21 @@ public class AuthTokenFilter extends OncePerRequestFilter {
             return header.substring(7);
         }
         return null;
+    }
+
+    //18,30
+
+
+    // Not: shouldNotFilter Metodu ****************************
+
+    //BAzı endpointlerin filtreden muhaf olması için bu methodu yazıyoruz
+    //  "/register" , nereden gelecek requstten gelecek "request.getServletPath()"
+
+    @Override
+    protected boolean shouldNotFilter(HttpServletRequest request) throws ServletException {
+        AntPathMatcher antMatcher = new AntPathMatcher();
+        return antMatcher.match("/register", request.getServletPath()) ||
+                antMatcher.match("/login", request.getServletPath());
     }
 
 
